@@ -35,3 +35,13 @@ Below is the representation of the maze after each of the step above
 ![Perfect maze]('1.basic.png')
 ![Sparse maze]('2.sparse.png')
 ![No dead ends]('3.closed.png')
+
+
+## Rooms
+
+todo
+
+
+## Weapons & Consumables
+
+todo
