@@ -36,24 +36,30 @@ class Maze(object):
             cell = self.deadends.pop()
             done = False
             direction = 'W'
+
+            # done when the deadends joined a corridor
             while not done:
                 valid = False
                 directions = set(self.DIRECTIONS.keys())
+
+                # valid when we find an unvisited cells that is not a wall
                 while not valid and directions:
                     directions.discard(direction)
                     next_cell = self.DIRECTIONS[direction](cell)
+
                     # not a neighbor already and in the bounds
                     if (next_cell not in self.data[cell] and self.data.get(next_cell) is not None):
                         self.deadends.discard(cell)
                         self.data[cell].add(next_cell)
 
-                        # Not a neighbour and is visited, we stop
+                        # not a neighbor and is visited, we stop
                         if self.data.get(next_cell):
                             self.data[next_cell].add(cell)
                             self.deadends.discard(next_cell)
                             done = True
                             break
-                        # Not a neighbour and not visited, we add it
+
+                        # not a neighbor and not visited, we add it
                         else:
                             self.data[next_cell].add(cell)
                             self.deadends.add(next_cell)
@@ -63,6 +69,7 @@ class Maze(object):
                     else:
                         direction = next(iter(directions))
 
+                # take a chance and see if we should change direction
                 if genutils.chance(randomness):
                     direction = random.choice(self.DIRECTIONS.keys())
 
@@ -79,10 +86,13 @@ class Maze(object):
             for cell in self.data.keys():
                 if len(self.data[cell]) == 1:
                     nb = self.data[cell].pop()
+                    # remove the cell from its neighbor's neighbors
                     self.data[nb].discard(cell)
+                    # if the neighbor is in turn a deadend, add it to the set
                     if len(self.data[nb]) == 1:
                         self.deadends.add(nb)
 
+                    # disconnect the cell
                     self.data[cell] = set()
                     self.deadends.discard(cell)
 
@@ -109,28 +119,36 @@ class Maze(object):
         unvisited_cells.discard(cell)
         visited_cells = [cell]
         direction = 'W'
+
         while unvisited_cells:
             valid = False
             directions = set(self.DIRECTIONS.keys())
+
+            # valid when we find an unvisited cells that is not a wall
             while not valid and directions:
                 directions.discard(direction)
                 next_cell = self.DIRECTIONS[direction](cell)
+
+                # if not a wall and unvisited
                 if self.data.get(next_cell) is not None and next_cell in unvisited_cells:
                     valid = True
                     break
                 elif directions:
                     direction = next(iter(directions))
 
+            # take a chance and see if we should change direction
             if genutils.chance(randomness):
                 direction = random.choice(self.DIRECTIONS.keys())
 
             if valid:
+                # connect the cell with its neighbor
                 self.data[cell].add(next_cell)
                 self.data[next_cell].add(cell)
                 visited_cells.append(next_cell)
                 unvisited_cells.discard(next_cell)
                 cell = next_cell
             else:
+                # try again from an other visited cell
                 cell = genutils.random_choice(visited_cells, cell)
 
     def _ascii(self, size=5):
