@@ -9,8 +9,10 @@ Algorithm: [Random Dungeon Design by Jamis Buck](http://www.brainycode.com/downl
 Create a maze instance and connect the cells to have a perfect maze
 
 ```
+width = 10
+height = 10
 maze = Maze(width, height)
-maze.create(randomness=1)
+maze.create(randomness=0.6)
 ```
 
 Make it sparse by removing some deadends (if you remove all deadends you will end up with no connected cells since it's a perfect maze)
@@ -21,7 +23,7 @@ maze.make_sparse(sparseness_ratio=0.4)
 Close the remaining deadends to allow loops and have something that ressembles dungeon corridors better
 
 ```
-maze.close_deadends(randomness=0.4)
+maze.close_deadends(randomness=0.6)
 ```
 
 To have a visual of the maze use `_ascii` or `_draw`
