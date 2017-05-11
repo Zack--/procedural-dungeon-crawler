@@ -190,6 +190,13 @@ class Maze(object):
 
         return art
 
+    def json(self):
+        return [{
+            'c': list(c),
+            'nb': map(list, self.data[c]),
+            'type': 'corridor' if self.data[c] else 'wall'
+        } for c in self.data]
+
     def double(self):
         self.h = self.h*2
         self.w = self.w*2
