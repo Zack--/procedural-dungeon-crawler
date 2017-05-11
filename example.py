@@ -23,3 +23,5 @@ if __name__ == "__main__":
     maze.close_deadends(randomness=float(sys.argv[3]))
     maze.draw(filename='3.closed.png', size=size)
 
+    maze.double()
+    maze.draw(filename='4.doubled.png', size=size)

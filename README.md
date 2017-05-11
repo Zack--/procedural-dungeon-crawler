@@ -27,6 +27,12 @@ Close the remaining deadends to allow loops and have something that ressembles d
 maze.close_deadends(randomness=0.6)
 ```
 
+Double its size to make more space to place rooms and have more elongated corridors.
+
+```python
+maze.double()
+```
+
 To have a visual of the maze use `_ascii` or `_draw`
 
 `_ascii` will return a ASCII representation of the maze
@@ -42,6 +48,7 @@ $ python example.py 10 10 0.6 0.4
 ![Perfect maze](1.basic.png)
 ![Sparse maze](2.sparse.png)
 ![No dead ends](3.closed.png)
+![Doubled](3.doubled.png)
 
 
 ## Rooms
