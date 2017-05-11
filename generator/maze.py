@@ -190,6 +190,27 @@ class Maze(object):
 
         return art
 
+    def double(self):
+        self.h = self.h*2
+        self.w = self.w*2
+        doubled = {
+            (x, y): set()
+            for y in range(self.h)
+            for x in range(self.w)
+        }
+        double = lambda x: (x[0] * 2, x[1] * 2)
+
+        for c in self.data:
+            dc = double(c)
+            for nb in self.data[c]:
+                dnb = double(nb)
+                inbetween_cell = (dc[0] + (((dc[0]-dnb[0]) / 2) * -1),
+                                  dc[1] + (((dc[1]-dnb[1]) / 2) * -1))
+                doubled[dc].add(inbetween_cell)
+                doubled[dc].add(dnb)
+
+        self.data = doubled
+
     def draw(self, size=5, filename=None):
         """
         // Debug func to have a visual of the tree //
