@@ -1,7 +1,7 @@
-1.basic.png
-2.sparse.png
-3.closed.png
-4.doubled.png
+./1.basic.png
+./2.sparse.png
+./3.closed.png
+./4.doubled.png
 
 
 # Created by https://www.gitignore.io/api/emacs,python
