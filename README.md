@@ -48,7 +48,7 @@ $ python example.py 10 10 0.6 0.4
 ![Perfect maze](1.basic.png)
 ![Sparse maze](2.sparse.png)
 ![No dead ends](3.closed.png)
-![Doubled](3.doubled.png)
+![Doubled](4.doubled.png)
 
 
 ## Rooms
