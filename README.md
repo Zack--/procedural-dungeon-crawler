@@ -15,11 +15,15 @@ maze = Maze(width, height)
 maze.create(randomness=0.6)
 ```
 
+![Perfect maze](1.basic.png)
+
 Make it sparse by removing some deadends (if you remove all deadends you will end up with no connected cells since it's a perfect maze)
 
 ```python
 maze.make_sparse(sparseness_ratio=0.4)
 ```
+
+![Sparse maze](2.sparse.png)
 
 Close the remaining deadends to allow loops and have something that ressembles dungeon corridors better
 
@@ -27,11 +31,15 @@ Close the remaining deadends to allow loops and have something that ressembles d
 maze.close_deadends(randomness=0.6)
 ```
 
+![No dead ends](3.closed.png)
+
 Double its size to make more space to place rooms and have more elongated corridors.
 
 ```python
 maze.double()
 ```
+
+![Doubled](4.doubled.png)
 
 To have a visual of the maze use `_ascii` or `_draw`
 
@@ -39,16 +47,12 @@ To have a visual of the maze use `_ascii` or `_draw`
 
 `_draw` will draw the maze in a PIL image and either show it or save depending on if you pass a filename or not
 
-Below is the representation of the maze after each of the steps above
+
+Try it out yourself:
 
 ```shell
 $ python example.py 10 10 0.6 0.4
 ```
-
-![Perfect maze](1.basic.png)
-![Sparse maze](2.sparse.png)
-![No dead ends](3.closed.png)
-![Doubled](4.doubled.png)
 
 
 ## Rooms
