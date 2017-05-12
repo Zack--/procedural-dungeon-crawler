@@ -1,6 +1,18 @@
 import numpy
 
 
+def randint(start, end):
+    """
+    Returns a random integer between start and end inclusive
+    Args:
+        end (int): upper limit of the range (inclusive)
+        start (int): lower limit of the range (exclusive)
+    Returns:
+        (int) random integer between start and end
+    """
+    return numpy.random.randint(start, end)
+
+
 def random_choice(pool, exclude=None):
     """
     Randomly returns an element in a list
