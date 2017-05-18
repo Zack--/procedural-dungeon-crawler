@@ -27,7 +27,7 @@ if __name__ == "__main__":
     maze.double()
     maze.draw(filename='assets/4.doubled.png', size=size)
 
-    room_width = (int(width*0.3), int(width*0.7))
-    room_height = (int(height*0.3), int(height*0.7))
+    room_width = (int(sys.argv[7]), int(sys.argv[8]))
+    room_height = room_width
     maze.add_rooms(int(sys.argv[6]), room_width, room_height)
     maze.draw(filename='assets/5.rooms.png', size=size)
