@@ -6,6 +6,12 @@ from . import genutils
 
 
 class Maze(object):
+    TYPES = {
+        'corridor': 'O',
+        'room': '.',
+        'void': ' ',
+        'door': 'D'
+    }
 
     DIRECTIONS = {
         'N': lambda c: (c[0], c[1]-1),
@@ -25,30 +31,36 @@ class Maze(object):
         self.deadends = set()
         self.rooms = {}
 
+    def get_neighbors(self, cell):
+        return map(lambda f: f(cell), self.DIRECTIONS.values())
+
+    def add_connection(self, choices):
+        corridor_cell, room_cell = random.sample(choices, 1)[0]
+        self.data[corridor_cell]['connection'] = room_cell
+        self.data[room_cell]['connection'] = corridor_cell
+
     def place_room(self, corner, width, height):
         (x, y) = corner
 
         self.rooms[corner] = {'width': width, 'height': height, 'doors': set()}
-
-        cells = []
+        adjacent_corridor_cells = set()
 
         for j in range(height):
             for i in range(width):
                 cell = (x+i, y+j)
-                cells.append(cell)
-                for (xd, yd) in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
-                    nb = (cell[0]+xd, cell[1]+yd)
+                for nb in self.get_neighbors(cell):
+                    # some room parts might be out of bounds, ignore those
                     if self.data.get(nb) is not None:
+                        # connect all room cells together
                         if x <= nb[0] < x+width and y <= nb[1] < y+height:
                             self.data[cell]['type'] = 'room'
                             self.data[nb]['neighbors'].add(cell)
                             self.data[cell]['neighbors'].add(nb)
+                        elif self.data[nb]['type'] == 'corridor':
+                            adjacent_corridor_cells.add((nb, cell))
 
-                        # add door to every connected corridor
-                        elif self.data[nb]['neighbors']:
-                            self.data[nb]['neighbors'].add(cell)
-                            self.data[cell]['neighbors'].add(nb)
-                            self.rooms[corner]['doors'].add((nb, cell))
+        if adjacent_corridor_cells:
+            self.add_connection(adjacent_corridor_cells)
 
     def add_rooms(self, n_rooms, room_width, room_height, ratio=None):
         while n_rooms:
@@ -70,12 +82,11 @@ class Maze(object):
                             elif self.data[cell]['type'] == 'room':
                                 score += 100
 
-                            score += sum(map(lambda c: not not self.data.get(c, {}).get('neighbors'),
-                                             [(cell[0]+1, cell[1]),
-                                              (cell[0]-1, cell[1]),
-                                              (cell[0], cell[1]+1),
-                                              (cell[0], cell[1]-1)]))
-                    if best_pos is None or 0 < score < best_pos[0]:
+                            score += sum(map(
+                                lambda c: not not self.data.get(c, {}).get('neighbors'),
+                                self.get_neighbors(cell)))
+
+                    if best_pos is None or 3 < score < best_pos[0]:
                         best_pos = (score, c)
 
             self.place_room(best_pos[1], width, height)
@@ -230,46 +241,61 @@ class Maze(object):
             list(list(char))
         """
 
+
         def draw_cell(x, y, node=' '):
             x = x*size
             y = y*size
             for j in range(size):
                 for i in range(size):
-                    art[y+j][x+i] = node
+                    if art[y+j][x+i] != self.TYPES['door']:
+                        art[y+j][x+i] = node
 
         def draw_region(top_left, lower_right):
             for j in range(top_left[1], lower_right[1]):
                 for i in range(top_left[0], lower_right[0]):
-                    draw_cell(i, j, node='r')
+                    draw_cell(i, j, node=self.TYPES['room'])
 
         art = [
-            ['#' for _ in range((self.w*2+1)*size)]
+            [self.TYPES['void'] for _ in range((self.w*2+1)*size)]
             for __ in range((self.h*2+1)*size)
         ]
         for y in range(self.h):
             for x in range(self.w):
                 cell = (x, y)
                 for neighbor in self.data[cell]['neighbors']:
+                    node = self.TYPES[self.data[neighbor]['type']]
+
+                    if self.data[neighbor]['type'] != self.data[cell]['type']:
+                        continue
+
                     xmin = min(x*2+1, neighbor[0]*2+1)
                     xmax = max(x*2+1, neighbor[0]*2+1)
                     for i in range(xmin, xmax):
-                        draw_cell(y=y*2+1, x=i, node='c')
+                        draw_cell(y=y*2+1, x=i, node=node)
 
                     ymin = min(y*2+1, neighbor[1]*2+1)
                     ymax = max(y*2+1, neighbor[1]*2+1)
                     for j in range(ymin, ymax):
-                        draw_cell(y=j, x=x*2+1, node='c')
+                        draw_cell(y=j, x=x*2+1, node=node)
 
                 if self.data[cell]['neighbors']:
-                    draw_cell(y=y*2+1, x=x*2+1, node='c')
+                    node = self.TYPES[self.data[cell]['type']]
 
-        for tl_corner in self.rooms:
-            lr_corner = (
-                tl_corner[0] + self.rooms[tl_corner]['width'],
-                tl_corner[1] + self.rooms[tl_corner]['height'])
-            tl_corner = (tl_corner[0]*2+1, tl_corner[1]*2+1)
-            lr_corner = (lr_corner[0]*2+1, lr_corner[1]*2+1)
-            draw_region(tl_corner, lr_corner)
+                    draw_cell(y=y*2+1, x=x*2+1, node=node)
+
+        #         if 'connection' in self.data[cell]:
+        #             c_cell = self.data[cell]['connection']
+        #             inter_x = max(cell[0], c_cell[0])*2 + int(cell[0] == c_cell[0])
+        #             inter_y = max(cell[1], c_cell[1])*2 + int(cell[1] == c_cell[1])
+        #             draw_cell(y=inter_y, x=inter_x, node=self.TYPES['door'])
+
+        # for tl_corner in self.rooms:
+        #     lr_corner = (
+        #         tl_corner[0] + self.rooms[tl_corner]['width'],
+        #         tl_corner[1] + self.rooms[tl_corner]['height'])
+        #     tl_corner = (tl_corner[0]*2+1, tl_corner[1]*2+1)
+        #     lr_corner = (lr_corner[0]*2+1, lr_corner[1]*2+1)
+        #     draw_region(tl_corner, lr_corner)
 
         return art
 
@@ -311,7 +337,10 @@ class Maze(object):
 
         img = Image.new('RGB', ((self.w*2+1)*size, (self.h*2+1)*size), "black")
         art = [
-            {'#': (0, 0, 0), 'c': (255, 255, 255), 'r': (0, 255, 255)}[c]
+            {self.TYPES['void']: (0, 0, 0),
+             self.TYPES['corridor']: (255, 255, 255),
+             self.TYPES['room']: (255, 255, 0),
+             self.TYPES['door']: (255, 0, 0)}[c]
             for row in self._ascii(size=size)
             for c in row
         ]
